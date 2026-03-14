@@ -92,6 +92,10 @@ bool fallingEdge(std::string pin){
     return (prev && !current);
 }
 
+/*
+* TODO: Dar um jeito de remover essa função de inicialização dos
+*       Estados das saídas para deixar o main.cpp mais limpo
+*/
 // Define as entradas para false inicialmente
 void startOutput(){
     for(auto &out : outputMap){
@@ -109,6 +113,17 @@ void writeMemory(std::string pin, bool value){
     memoryState[pin] = value;
 }
 
+/*
+* NOTE: Em relação ao TON e TOF, eu não sei exatamente como eles funcionam.
+*       Em alguns simuladores Eles são acionados com pulso e fica energinazados sem precisar de selo.
+*       Eles são desativados com uma saída de RESET nomeada com seu label.
+*       Já em alguns outros, é necessário fazer o selo com as próprias saídas do timer, por exemplo.
+*       Atualmente, esta implementação é baseada no segundo caso.
+*       Para o TON permanecer ligado, eu faço um selo com TX.EN, e coloco uma entrada em série para desligar.
+*       e para o TOF permanecer ligado, eu faço um selo com TX.DN, e coloco uma entrada em série para desligar.
+* TODO: Talvez seja interessante padronizar para ambos desligarem com a saída reset nomeada com seus labels
+*       Ao invés de usar selos manuais.
+*/
 void executeTON(std::string name, bool rungCondition, unsigned long preset){
     Timer &t = timerMap[name];
     t.preset = preset;
@@ -168,6 +183,10 @@ void executeTOF(std::string name, bool rungCondition, unsigned long preset){
     }
 }
 
+/*
+* TODO: Talvez seja interessante não resetar o enable do timer,
+*       pois resetar EN reseta a rung de selo, e não só a saída
+*/
 void resetTimer(std::string name){
     Timer &t = timerMap[name];
     t.EN = false;

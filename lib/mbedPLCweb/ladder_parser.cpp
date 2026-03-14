@@ -11,6 +11,9 @@ Node parseNode(JsonObject obj){
         node.pin = obj["pin"].as<String>().c_str();
         node.mode = obj["mode"].as<String>().c_str();
     }
+    /*
+    * BUG: Como as entradas estão setadas para pullup, assim que o micro liga ele já detecta um RISE event
+    */
     else if(type == "R_TRIG"){
         node.type = R_TRIG;
         node.pin = obj["pin"].as<String>().c_str();

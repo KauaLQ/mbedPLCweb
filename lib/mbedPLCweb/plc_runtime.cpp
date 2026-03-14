@@ -63,6 +63,10 @@ void executePLC(){
                     else if(out.pin[0] == 'M'){
                         writeMemory(out.pin,false);
                     }
+                    /*
+                    * TODO: seria interessante que ao invés dessa gambiarra de usar o mesmo RESET para 
+                    *       SET e timers/counters, fosse criado um novo type só para timers/counters
+                    */
                     else if(out.pin[0] == 'T'){
                         resetTimer(out.pin);
                     }
