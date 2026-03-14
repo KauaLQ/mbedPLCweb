@@ -63,6 +63,12 @@ void executePLC(){
                     else if(out.pin[0] == 'M'){
                         writeMemory(out.pin,false);
                     }
+                    else if(out.pin[0] == 'T'){
+                        resetTimer(out.pin);
+                    }
+                    else if(out.pin[0] == 'C'){
+                        resetCounter(out.pin);
+                    }
                 }
             }
         }

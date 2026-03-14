@@ -168,6 +168,15 @@ void executeTOF(std::string name, bool rungCondition, unsigned long preset){
     }
 }
 
+void resetTimer(std::string name){
+    Timer &t = timerMap[name];
+    t.EN = false;
+    t.TT = false;
+    t.DN = false;
+    t.accum = 0;
+    t.startTime = 0;
+}
+
 void executeCTU(std::string name, bool rungCondition, int preset){
     Counter &c = counterMap[name];
     c.PRE = preset;

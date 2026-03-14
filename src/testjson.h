@@ -192,6 +192,16 @@ String testJSON5 = R"rawliteral(
    "outputs":[
      {"pin":"Q1","type":"COIL"}
    ]
+  },
+  {
+  "logic":{
+    "type":"CONTACT",
+    "pin":"I2",
+    "mode":"NC"
+  },
+  "outputs":[
+    {"pin":"T0","type":"RESET"}
+  ]
   }
  ]
 }
@@ -263,7 +273,7 @@ String testJSON8 = R"rawliteral(
    "counter":{
      "type":"CTU",
      "name":"C0",
-     "preset":5
+     "preset":3
    }
   },
   {
@@ -274,6 +284,16 @@ String testJSON8 = R"rawliteral(
    },
    "outputs":[
      {"pin":"Q0","type":"COIL"}
+   ]
+  },
+  {
+   "logic":{
+     "type":"CONTACT",
+     "pin":"I1",
+     "mode":"NC"
+   },
+   "outputs":[
+     {"pin":"C0","type":"RESET"}
    ]
   }
  ]

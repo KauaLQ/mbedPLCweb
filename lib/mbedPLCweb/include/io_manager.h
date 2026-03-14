@@ -9,6 +9,7 @@ void writeOutput(std::string pin, bool value);
 void writeMemory(std::string pin, bool value);
 void executeTON(std::string name, bool rungCondition, unsigned long preset);
 void executeTOF(std::string name, bool rungCondition, unsigned long preset);
+void resetTimer(std::string name);
 void executeCTU(std::string name, bool rungCondition, int preset);
 void resetCounter(std::string name);
 
