@@ -64,6 +64,14 @@ Line parseLine(JsonObject obj){
         line.timer.name = timerObj["name"].as<String>().c_str();
         line.timer.preset = timerObj["preset"];
     }
+    // ------- COUNTER -------
+    if(obj["counter"].is<JsonObject>()){
+        JsonObject counterObj = obj["counter"];
+        line.hasCounter = true;
+        line.counter.type = counterObj["type"].as<String>().c_str();
+        line.counter.name = counterObj["name"].as<String>().c_str();
+        line.counter.preset = counterObj["preset"];
+    }
     return line;
 }
 

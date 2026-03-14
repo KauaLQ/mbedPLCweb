@@ -15,7 +15,7 @@ void setup(){
     void startOutput();
 
     Serial.begin(115200);
-    parseProgram(testJSON7);
+    parseProgram(testJSON8);
 }
 
 void loop(){

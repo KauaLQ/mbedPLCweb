@@ -33,6 +33,13 @@ std::map<std::string, Timer> timerMap = {
     {"T3",Timer()}
 };
 
+std::map<std::string, Counter> counterMap = {
+    {"C0", Counter()},
+    {"C1", Counter()},
+    {"C2", Counter()},
+    {"C3", Counter()}
+};
+
 std::map<std::string,bool> previousState;
 
 bool readTag(std::string pin){
@@ -57,6 +64,15 @@ bool readTag(std::string pin){
             if(field == "DN") return t.DN;
             if(field == "TT") return t.TT;
             if(field == "EN") return t.EN;
+        }
+    }
+
+    if(pin.find('.') != std::string::npos){
+        std::string counterName = pin.substr(0, pin.find('.'));
+        std::string field = pin.substr(pin.find('.')+1);
+        if(counterMap.count(counterName)){
+            Counter &c = counterMap[counterName];
+            if(field == "DN") return c.DN;
         }
     }
     return false;
@@ -150,4 +166,23 @@ void executeTOF(std::string name, bool rungCondition, unsigned long preset){
             }
         }
     }
+}
+
+void executeCTU(std::string name, bool rungCondition, int preset){
+    Counter &c = counterMap[name];
+    c.PRE = preset;
+    // detectar borda de subida
+    if(rungCondition && !c.prevCU){
+        c.ACC++;
+        if(c.ACC >= c.PRE){
+            c.DN = true;
+        }
+    }
+    c.prevCU = rungCondition;
+}
+
+void resetCounter(std::string name){
+    Counter &c = counterMap[name];
+    c.ACC = 0;
+    c.DN = false;
 }

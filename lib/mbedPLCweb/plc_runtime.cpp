@@ -26,6 +26,16 @@ void executePLC(){
             }
         }
 
+        if(line.hasCounter){
+            if(line.counter.type == "CTU"){
+                executeCTU(
+                    line.counter.name,
+                    result,
+                    line.counter.preset
+                );
+            }
+        }
+
         for(auto &out : line.outputs){
             if(out.type == "COIL"){
                 if(out.pin[0] == 'Q'){

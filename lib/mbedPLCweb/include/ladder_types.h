@@ -46,11 +46,26 @@ struct Timer {
     unsigned long startTime = 0;
 };
 
+struct CounterInstruction{
+    std::string type; // CTU
+    std::string name;
+    int preset;
+};
+
+struct Counter {
+    bool DN = false;   // done (ACC >= PRE)
+    int ACC = 0;   // acumulador
+    int PRE = 0;   // preset
+    bool prevCU = false;
+};
+
 struct Line {
     Node logic;
     std::vector<Output> outputs;
     bool hasTimer = false;
     TimerInstruction timer;
+    bool hasCounter = false;
+    CounterInstruction counter;
 };
 
 extern std::vector<Line> program;

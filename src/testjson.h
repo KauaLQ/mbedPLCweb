@@ -250,5 +250,32 @@ String testJSON7 = R"rawliteral(
   }
  ]
 }
+)rawliteral";
 
+String testJSON8 = R"rawliteral(
+{
+ "lines":[
+  {
+   "logic":{
+     "type":"R_TRIG",
+     "pin":"I0"
+   },
+   "counter":{
+     "type":"CTU",
+     "name":"C0",
+     "preset":5
+   }
+  },
+  {
+   "logic":{
+     "type":"CONTACT",
+     "pin":"C0.DN",
+     "mode":"NO"
+   },
+   "outputs":[
+     {"pin":"Q0","type":"COIL"}
+   ]
+  }
+ ]
+}
 )rawliteral";
