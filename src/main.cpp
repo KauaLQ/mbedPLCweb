@@ -23,8 +23,8 @@ String testJSON = R"rawliteral(
      ]
    },
    "outputs":[
-     {"pin":"Q0"},
-     {"pin":"Q1"}
+     {"pin":"Q0","type":"COIL"},
+     {"pin":"Q1","type":"COIL"}
    ]
   }
  ]
@@ -58,8 +58,8 @@ String testJSON2 = R"rawliteral(
       ]
     },
     "outputs":[
-      {"pin":"Q0"},
-      {"pin":"Q1"}
+      {"pin":"Q0","type":"COIL"},
+      {"pin":"Q1","type":"COIL"}
     ]
   }
  ]
@@ -93,8 +93,8 @@ String testJSON3 = R"rawliteral(
       ]
     },
     "outputs":[
-      {"pin":"Q0"},
-      {"pin":"M0"}
+      {"pin":"Q0","type":"COIL"},
+      {"pin":"M0","type":"COIL"}
     ]
   },
   {
@@ -107,8 +107,45 @@ String testJSON3 = R"rawliteral(
               ]
     },
     "outputs":[
-      {"pin":"Q1"}
+      {"pin":"Q1","type":"COIL"}
     ]
+  }
+ ]
+}
+)rawliteral";
+
+String testJSON4 = R"rawliteral(
+{
+ "lines":[
+  {
+   "logic":{
+     "type":"CONTACT",
+     "pin":"I0",
+     "mode":"NC"
+   },
+   "outputs":[
+     {"pin":"M0","type":"SET"}
+   ]
+  },
+  {
+   "logic":{
+     "type":"CONTACT",
+     "pin":"I1",
+     "mode":"NC"
+   },
+   "outputs":[
+     {"pin":"M0","type":"RESET"}
+   ]
+  },
+  {
+   "logic":{
+     "type":"CONTACT",
+     "pin":"M0",
+     "mode":"NO"
+   },
+   "outputs":[
+     {"pin":"Q0","type":"COIL"}
+   ]
   }
  ]
 }
@@ -125,7 +162,7 @@ void setup(){
     void startOutput();
 
     Serial.begin(115200);
-    parseProgram(testJSON3);
+    parseProgram(testJSON4);
 }
 
 void loop(){

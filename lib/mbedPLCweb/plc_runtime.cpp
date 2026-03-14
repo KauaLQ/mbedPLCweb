@@ -8,11 +8,33 @@ void executePLC(){
     for(auto &line : program){
         bool result = evaluateNode(line.logic);
         for(auto &out : line.outputs){
-            if(out[0] == 'Q'){
-                writeOutput(out,result);
+            if(out.type == "COIL"){
+                if(out.pin[0] == 'Q'){
+                    writeOutput(out.pin,result);
+                }
+                else if(out.pin[0] == 'M'){
+                    writeMemory(out.pin,result);
+                }
             }
-            else if(out[0] == 'M'){
-                writeMemory(out,result);
+            if(out.type == "SET"){
+                if(result){
+                    if(out.pin[0] == 'Q'){
+                        writeOutput(out.pin,true);
+                    }
+                    else if(out.pin[0] == 'M'){
+                        writeMemory(out.pin,true);
+                    }
+                }
+            }
+            if(out.type == "RESET"){
+                if(result){
+                    if(out.pin[0] == 'Q'){
+                        writeOutput(out.pin,false);
+                    }
+                    else if(out.pin[0] == 'M'){
+                        writeMemory(out.pin,false);
+                    }
+                }
             }
         }
     }

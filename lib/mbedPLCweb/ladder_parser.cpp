@@ -41,7 +41,10 @@ Line parseLine(JsonObject obj){
     JsonArray outputs = obj["outputs"];
 
     for(JsonObject out : outputs){
-        line.outputs.push_back(out["pin"].as<String>().c_str());
+        Output o;
+        o.pin = out["pin"].as<String>().c_str();
+        o.type = out["type"] | "COIL";
+        line.outputs.push_back(o);
     }
     return line;
 }

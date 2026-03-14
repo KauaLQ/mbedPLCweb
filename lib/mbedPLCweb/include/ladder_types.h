@@ -22,9 +22,14 @@ struct Node {
     std::vector<Node> nodes;
 };
 
+struct Output {
+    std::string pin;
+    std::string type; // COIL SET RESET
+};
+
 struct Line {
     Node logic;
-    std::vector<std::string> outputs;
+    std::vector<Output> outputs;
 };
 
 extern std::vector<Line> program;
