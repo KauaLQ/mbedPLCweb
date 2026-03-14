@@ -170,7 +170,7 @@ String testJSON5 = R"rawliteral(
    "timer":{
      "type":"TON",
      "name":"T0",
-     "preset":10000
+     "preset":3000
    }
   },
   {
@@ -191,6 +191,35 @@ String testJSON5 = R"rawliteral(
    },
    "outputs":[
      {"pin":"Q1","type":"COIL"}
+   ]
+  }
+ ]
+}
+)rawliteral";
+
+String testJSON6 = R"rawliteral(
+{
+ "lines":[
+  {
+   "logic":{
+     "type":"CONTACT",
+     "pin":"I0",
+     "mode":"NC"
+   },
+   "timer":{
+     "type":"TOF",
+     "name":"T0",
+     "preset":3000
+   }
+  },
+  {
+   "logic":{
+     "type":"CONTACT",
+     "pin":"T0.DN",
+     "mode":"NO"
+   },
+   "outputs":[
+     {"pin":"Q0","type":"COIL"}
    ]
   }
  ]

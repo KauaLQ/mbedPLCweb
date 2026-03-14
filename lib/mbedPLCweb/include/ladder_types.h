@@ -33,7 +33,7 @@ struct TimerInstruction{
     unsigned long preset;
 };
 
-struct TimerTON {
+struct Timer {
     bool EN = false;
     bool TT = false;
     bool DN = false;

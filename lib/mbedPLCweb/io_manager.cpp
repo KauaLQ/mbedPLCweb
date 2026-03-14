@@ -26,11 +26,11 @@ std::map<std::string,bool> memoryState = {
     {"M3",false}
 };
 
-std::map<std::string, TimerTON> timerMap = {
-    {"T0",TimerTON()},
-    {"T1",TimerTON()},
-    {"T2",TimerTON()},
-    {"T3",TimerTON()}
+std::map<std::string, Timer> timerMap = {
+    {"T0",Timer()},
+    {"T1",Timer()},
+    {"T2",Timer()},
+    {"T3",Timer()}
 };
 
 bool readTag(std::string pin){
@@ -51,7 +51,7 @@ bool readTag(std::string pin){
         std::string timerName = pin.substr(0, pin.find('.'));
         std::string field = pin.substr(pin.find('.')+1);
         if(timerMap.count(timerName)){
-            TimerTON &t = timerMap[timerName];
+            Timer &t = timerMap[timerName];
             if(field == "DN") return t.DN;
             if(field == "TT") return t.TT;
             if(field == "EN") return t.EN;
@@ -78,7 +78,7 @@ void writeMemory(std::string pin, bool value){
 }
 
 void executeTON(std::string name, bool rungCondition, unsigned long preset){
-    TimerTON &t = timerMap[name];
+    Timer &t = timerMap[name];
     t.preset = preset;
     unsigned long now = millis();
 
@@ -102,5 +102,36 @@ void executeTON(std::string name, bool rungCondition, unsigned long preset){
         t.TT = false;
         t.DN = false;
         t.accum = 0;
+    }
+}
+
+void executeTOF(std::string name, bool rungCondition, unsigned long preset){
+    Timer &t = timerMap[name];
+    t.preset = preset;
+    unsigned long now = millis();
+
+    if(rungCondition){
+        // entrada ativa → saída ativa imediatamente
+        t.EN = true;
+        t.DN = true;
+        t.TT = false;
+        // reseta temporização
+        t.accum = 0;
+    }
+    else{
+        // entrada desligou → começa temporizar
+        if(t.EN){
+            if(!t.TT){
+                t.startTime = now;
+                t.TT = true;
+            }
+            t.accum = now - t.startTime;
+
+            if(t.accum >= t.preset){
+                t.DN = false;
+                t.TT = false;
+                t.EN = false;
+            }
+        }
     }
 }

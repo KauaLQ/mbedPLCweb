@@ -10,11 +10,20 @@ void executePLC(){
 
         // Analisa timers da linha
         if(line.hasTimer){
-            executeTON(
-                line.timer.name,
-                result,
-                line.timer.preset
-            );
+            if(line.timer.type == "TON"){
+                executeTON(
+                    line.timer.name,
+                    result,
+                    line.timer.preset
+                );
+            }
+            else if(line.timer.type == "TOF"){
+                executeTOF(
+                    line.timer.name,
+                    result,
+                    line.timer.preset
+                );
+            }
         }
 
         for(auto &out : line.outputs){
