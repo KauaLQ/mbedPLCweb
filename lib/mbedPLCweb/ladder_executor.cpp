@@ -3,7 +3,7 @@
 
 bool evaluateNode(Node &node){
     if(node.type == CONTACT){
-        bool value = readInput(node.pin);
+        bool value = readTag(node.pin);
         if(node.mode == "NC"){
             value = !value;
         }

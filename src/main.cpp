@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "plc_runtime.h"
 #include "ladder_parser.h"
+#include "io_manager.h"
 
 String testJSON = R"rawliteral(
 {
@@ -46,14 +47,14 @@ String testJSON2 = R"rawliteral(
               "type":"OP",
               "op":"AND",
               "nodes":[
-                {"type":"CONTACT","pin":"I0","mode":"NO"},
-                {"type":"CONTACT","pin":"I1","mode":"NO"}
+                {"type":"CONTACT","pin":"I0","mode":"NC"},
+                {"type":"CONTACT","pin":"I1","mode":"NC"}
               ]
             },
-            {"type":"CONTACT","pin":"I2","mode":"NO"}
+            {"type":"CONTACT","pin":"Q0","mode":"NO"}
           ]
         },
-        {"type":"CONTACT","pin":"I3","mode":"NO"}
+        {"type":"CONTACT","pin":"I2","mode":"NO"}
       ]
     },
     "outputs":[
@@ -73,14 +74,16 @@ void setup(){
     pinMode(32, OUTPUT);
     pinMode(33, OUTPUT);
 
+    void startOutput();
+
     Serial.begin(115200);
-    parseProgram(testJSON);
+    parseProgram(testJSON2);
 }
 
 void loop(){
     // scan cycle
     // 1 ler entradas
-    // (feito dentro de readInput)
+    // (feito dentro de readTag)
     // 2 executar linhas
     executePLC();
     // 3 atualizar saídas

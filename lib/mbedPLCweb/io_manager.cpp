@@ -14,12 +14,29 @@ std::map<std::string,int> outputMap = {
     {"Q1",33}
 };
 
-bool readInput(std::string pin){
-    int gpio = inputMap[pin];
-    return digitalRead(gpio);
+std::map<std::string,bool> outputState;
+
+bool readTag(std::string pin){
+    if(inputMap.count(pin)){
+        int gpio = inputMap[pin];
+        return digitalRead(gpio);
+    }
+
+    if(outputState.count(pin)){
+        return outputState[pin];
+    }
+    return false;
 }
+
+// Define as entradas para false inicialmente
+void startOutput(){
+    for(auto &out : outputMap){
+        outputState[out.first] = false;
+    }
+};
 
 void writeOutput(std::string pin, bool value){
     int gpio = outputMap[pin];
+    outputState[pin] = value;
     digitalWrite(gpio,value);
 }
