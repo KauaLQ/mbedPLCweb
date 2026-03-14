@@ -33,6 +33,8 @@ std::map<std::string, Timer> timerMap = {
     {"T3",Timer()}
 };
 
+std::map<std::string,bool> previousState;
+
 bool readTag(std::string pin){
     if(inputMap.count(pin)){
         int gpio = inputMap[pin];
@@ -58,6 +60,20 @@ bool readTag(std::string pin){
         }
     }
     return false;
+}
+
+bool risingEdge(std::string pin){
+    bool current = readTag(pin);
+    bool prev = previousState[pin];
+    previousState[pin] = current;
+    return (!prev && current);
+}
+
+bool fallingEdge(std::string pin){
+    bool current = readTag(pin);
+    bool prev = previousState[pin];
+    previousState[pin] = current;
+    return (prev && !current);
 }
 
 // Define as entradas para false inicialmente

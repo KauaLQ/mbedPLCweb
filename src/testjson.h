@@ -225,3 +225,30 @@ String testJSON6 = R"rawliteral(
  ]
 }
 )rawliteral";
+
+String testJSON7 = R"rawliteral(
+{
+ "lines":[
+  {
+   "logic":{
+     "type":"F_TRIG",
+     "pin":"I0"
+   },
+   "outputs":[
+     {"pin":"M0","type":"SET"}
+   ]
+  },
+  {
+   "logic":{
+     "type":"CONTACT",
+     "pin":"M0",
+     "mode":"NO"
+   },
+   "outputs":[
+     {"pin":"Q0","type":"COIL"}
+   ]
+  }
+ ]
+}
+
+)rawliteral";

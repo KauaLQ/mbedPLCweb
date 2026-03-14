@@ -10,6 +10,14 @@ bool evaluateNode(Node &node){
         return value;
     }
 
+    if(node.type == R_TRIG){
+        return risingEdge(node.pin);
+    }
+
+    if(node.type == F_TRIG){
+        return fallingEdge(node.pin);
+    }
+
     if(node.type == OP){
         if(node.op == AND){
             bool result = true;

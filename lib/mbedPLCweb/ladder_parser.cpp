@@ -11,6 +11,14 @@ Node parseNode(JsonObject obj){
         node.pin = obj["pin"].as<String>().c_str();
         node.mode = obj["mode"].as<String>().c_str();
     }
+    else if(type == "R_TRIG"){
+        node.type = R_TRIG;
+        node.pin = obj["pin"].as<String>().c_str();
+    }
+    else if(type == "F_TRIG"){
+        node.type = F_TRIG;
+        node.pin = obj["pin"].as<String>().c_str();
+    }
     else if(type == "OP"){
         node.type = OP;
         String op = obj["op"];

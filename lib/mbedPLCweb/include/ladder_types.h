@@ -4,6 +4,8 @@
 
 enum NodeType {
     CONTACT,
+    R_TRIG,
+    F_TRIG,
     OP
 };
 
