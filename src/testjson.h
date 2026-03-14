@@ -1,0 +1,149 @@
+#include <Arduino.h>
+
+String testJSON = R"rawliteral(
+{
+ "lines":[
+  {
+   "logic":{
+     "type":"OP",
+     "op":"OR",
+     "nodes":[
+       {
+         "type":"OP",
+         "op":"OR",
+         "nodes":[
+           {"type":"CONTACT","pin":"I0","mode":"NO"},
+           {"type":"CONTACT","pin":"I1","mode":"NO"}
+         ]
+       },
+       {"type":"CONTACT","pin":"I2","mode":"NO"}
+     ]
+   },
+   "outputs":[
+     {"pin":"Q0","type":"COIL"},
+     {"pin":"Q1","type":"COIL"}
+   ]
+  }
+ ]
+}
+)rawliteral";
+
+String testJSON2 = R"rawliteral(
+{
+ "lines":[
+  {
+    "logic":{
+      "type":"OP",
+      "op":"AND",
+      "nodes":[
+        {
+          "type":"OP",
+          "op":"OR",
+          "nodes":[
+            {
+              "type":"OP",
+              "op":"AND",
+              "nodes":[
+                {"type":"CONTACT","pin":"I0","mode":"NC"},
+                {"type":"CONTACT","pin":"I1","mode":"NC"}
+              ]
+            },
+            {"type":"CONTACT","pin":"Q0","mode":"NO"}
+          ]
+        },
+        {"type":"CONTACT","pin":"I2","mode":"NO"}
+      ]
+    },
+    "outputs":[
+      {"pin":"Q0","type":"COIL"},
+      {"pin":"Q1","type":"COIL"}
+    ]
+  }
+ ]
+}
+)rawliteral";
+
+String testJSON3 = R"rawliteral(
+{
+ "lines":[
+  {
+    "logic":{
+      "type":"OP",
+      "op":"AND",
+      "nodes":[
+        {
+          "type":"OP",
+          "op":"OR",
+          "nodes":[
+            {
+              "type":"OP",
+              "op":"AND",
+              "nodes":[
+                {"type":"CONTACT","pin":"I0","mode":"NC"},
+                {"type":"CONTACT","pin":"I1","mode":"NC"}
+              ]
+            },
+            {"type":"CONTACT","pin":"Q0","mode":"NO"}
+          ]
+        },
+        {"type":"CONTACT","pin":"I2","mode":"NO"}
+      ]
+    },
+    "outputs":[
+      {"pin":"Q0","type":"COIL"},
+      {"pin":"M0","type":"COIL"}
+    ]
+  },
+  {
+    "logic":{
+              "type":"OP",
+              "op":"AND",
+              "nodes":[
+                {"type":"CONTACT","pin":"M0","mode":"NO"},
+                {"type":"CONTACT","pin":"I3","mode":"NC"}
+              ]
+    },
+    "outputs":[
+      {"pin":"Q1","type":"COIL"}
+    ]
+  }
+ ]
+}
+)rawliteral";
+
+String testJSON4 = R"rawliteral(
+{
+ "lines":[
+  {
+   "logic":{
+     "type":"CONTACT",
+     "pin":"I0",
+     "mode":"NC"
+   },
+   "outputs":[
+     {"pin":"M0","type":"SET"}
+   ]
+  },
+  {
+   "logic":{
+     "type":"CONTACT",
+     "pin":"I1",
+     "mode":"NC"
+   },
+   "outputs":[
+     {"pin":"M0","type":"RESET"}
+   ]
+  },
+  {
+   "logic":{
+     "type":"CONTACT",
+     "pin":"M0",
+     "mode":"NO"
+   },
+   "outputs":[
+     {"pin":"Q0","type":"COIL"}
+   ]
+  }
+ ]
+}
+)rawliteral";
