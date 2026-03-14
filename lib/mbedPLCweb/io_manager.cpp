@@ -14,7 +14,16 @@ std::map<std::string,int> outputMap = {
     {"Q1",33}
 };
 
+// Armazena o estado das saídas
 std::map<std::string,bool> outputState;
+
+// Armazena o estado de memórias internas da lógica ladder
+std::map<std::string,bool> memoryState = {
+    {"M0",false},
+    {"M1",false},
+    {"M2",false},
+    {"M3",false}
+};
 
 bool readTag(std::string pin){
     if(inputMap.count(pin)){
@@ -25,6 +34,10 @@ bool readTag(std::string pin){
     if(outputState.count(pin)){
         return outputState[pin];
     }
+
+    if(memoryState.count(pin)){
+        return memoryState[pin];
+    }
     return false;
 }
 
@@ -33,10 +46,14 @@ void startOutput(){
     for(auto &out : outputMap){
         outputState[out.first] = false;
     }
-};
+}
 
 void writeOutput(std::string pin, bool value){
     int gpio = outputMap[pin];
     outputState[pin] = value;
     digitalWrite(gpio,value);
+}
+
+void writeMemory(std::string pin, bool value){
+    memoryState[pin] = value;
 }

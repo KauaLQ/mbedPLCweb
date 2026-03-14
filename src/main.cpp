@@ -66,6 +66,54 @@ String testJSON2 = R"rawliteral(
 }
 )rawliteral";
 
+String testJSON3 = R"rawliteral(
+{
+ "lines":[
+  {
+    "logic":{
+      "type":"OP",
+      "op":"AND",
+      "nodes":[
+        {
+          "type":"OP",
+          "op":"OR",
+          "nodes":[
+            {
+              "type":"OP",
+              "op":"AND",
+              "nodes":[
+                {"type":"CONTACT","pin":"I0","mode":"NC"},
+                {"type":"CONTACT","pin":"I1","mode":"NC"}
+              ]
+            },
+            {"type":"CONTACT","pin":"Q0","mode":"NO"}
+          ]
+        },
+        {"type":"CONTACT","pin":"I2","mode":"NO"}
+      ]
+    },
+    "outputs":[
+      {"pin":"Q0"},
+      {"pin":"M0"}
+    ]
+  },
+  {
+    "logic":{
+              "type":"OP",
+              "op":"AND",
+              "nodes":[
+                {"type":"CONTACT","pin":"M0","mode":"NO"},
+                {"type":"CONTACT","pin":"I3","mode":"NC"}
+              ]
+    },
+    "outputs":[
+      {"pin":"Q1"}
+    ]
+  }
+ ]
+}
+)rawliteral";
+
 void setup(){
     pinMode(16, INPUT_PULLUP);
     pinMode(17, INPUT_PULLUP);
@@ -77,7 +125,7 @@ void setup(){
     void startOutput();
 
     Serial.begin(115200);
-    parseProgram(testJSON2);
+    parseProgram(testJSON3);
 }
 
 void loop(){

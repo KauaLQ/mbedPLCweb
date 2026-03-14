@@ -8,7 +8,12 @@ void executePLC(){
     for(auto &line : program){
         bool result = evaluateNode(line.logic);
         for(auto &out : line.outputs){
-            writeOutput(out,result);
+            if(out[0] == 'Q'){
+                writeOutput(out,result);
+            }
+            else if(out[0] == 'M'){
+                writeMemory(out,result);
+            }
         }
     }
 }
