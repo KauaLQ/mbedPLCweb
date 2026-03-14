@@ -27,9 +27,28 @@ struct Output {
     std::string type; // COIL SET RESET
 };
 
+struct TimerInstruction{
+    std::string type;
+    std::string name;
+    unsigned long preset;
+};
+
+struct TimerTON {
+    bool EN = false;
+    bool TT = false;
+    bool DN = false;
+
+    unsigned long preset = 0;
+    unsigned long accum = 0;
+
+    unsigned long startTime = 0;
+};
+
 struct Line {
     Node logic;
     std::vector<Output> outputs;
+    bool hasTimer = false;
+    TimerInstruction timer;
 };
 
 extern std::vector<Line> program;

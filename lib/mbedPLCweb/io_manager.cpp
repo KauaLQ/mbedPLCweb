@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <map>
 #include <string>
+#include "include/ladder_types.h"
 
 std::map<std::string,int> inputMap = {
     {"I0",16},
@@ -25,6 +26,13 @@ std::map<std::string,bool> memoryState = {
     {"M3",false}
 };
 
+std::map<std::string, TimerTON> timerMap = {
+    {"T0",TimerTON()},
+    {"T1",TimerTON()},
+    {"T2",TimerTON()},
+    {"T3",TimerTON()}
+};
+
 bool readTag(std::string pin){
     if(inputMap.count(pin)){
         int gpio = inputMap[pin];
@@ -37,6 +45,17 @@ bool readTag(std::string pin){
 
     if(memoryState.count(pin)){
         return memoryState[pin];
+    }
+
+    if(pin.find('.') != std::string::npos){
+        std::string timerName = pin.substr(0, pin.find('.'));
+        std::string field = pin.substr(pin.find('.')+1);
+        if(timerMap.count(timerName)){
+            TimerTON &t = timerMap[timerName];
+            if(field == "DN") return t.DN;
+            if(field == "TT") return t.TT;
+            if(field == "EN") return t.EN;
+        }
     }
     return false;
 }
@@ -56,4 +75,32 @@ void writeOutput(std::string pin, bool value){
 
 void writeMemory(std::string pin, bool value){
     memoryState[pin] = value;
+}
+
+void executeTON(std::string name, bool rungCondition, unsigned long preset){
+    TimerTON &t = timerMap[name];
+    t.preset = preset;
+    unsigned long now = millis();
+
+    if(rungCondition){
+        if(!t.EN){
+            t.EN = true;
+            t.startTime = now;
+        }
+        t.accum = now - t.startTime;
+
+        if(t.accum >= t.preset){
+            t.DN = true;
+            t.TT = false;
+        }
+        else{
+            t.TT = true;
+            t.DN = false;
+        }
+    }else{
+        t.EN = false;
+        t.TT = false;
+        t.DN = false;
+        t.accum = 0;
+    }
 }

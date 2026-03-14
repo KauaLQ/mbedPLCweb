@@ -147,3 +147,52 @@ String testJSON4 = R"rawliteral(
  ]
 }
 )rawliteral";
+
+String testJSON5 = R"rawliteral(
+{
+ "lines":[
+  {
+   "logic":{
+     "type":"OP",
+     "op":"AND",
+     "nodes":[
+       {
+         "type":"OP",
+         "op":"OR",
+         "nodes":[
+           {"type":"CONTACT","pin":"I0","mode":"NC"},
+           {"type":"CONTACT","pin":"T0.EN","mode":"NO"}
+         ]
+       },
+       {"type":"CONTACT","pin":"I1","mode":"NO"}
+     ]
+   },
+   "timer":{
+     "type":"TON",
+     "name":"T0",
+     "preset":10000
+   }
+  },
+  {
+   "logic":{
+     "type":"CONTACT",
+     "pin":"T0.DN",
+     "mode":"NO"
+   },
+   "outputs":[
+     {"pin":"Q0","type":"COIL"}
+   ]
+  },
+  {
+   "logic":{
+     "type":"CONTACT",
+     "pin":"T0.TT",
+     "mode":"NO"
+   },
+   "outputs":[
+     {"pin":"Q1","type":"COIL"}
+   ]
+  }
+ ]
+}
+)rawliteral";

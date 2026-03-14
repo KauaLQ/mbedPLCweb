@@ -38,13 +38,23 @@ Line parseLine(JsonObject obj){
     Line line;
     JsonObject logicObj = obj["logic"];
     line.logic = parseNode(logicObj);
-    JsonArray outputs = obj["outputs"];
-
-    for(JsonObject out : outputs){
-        Output o;
-        o.pin = out["pin"].as<String>().c_str();
-        o.type = out["type"] | "COIL";
-        line.outputs.push_back(o);
+    // -------- OUTPUTS --------
+    if(obj["outputs"].is<JsonArray>()){
+        JsonArray outputs = obj["outputs"];
+        for(JsonObject out : outputs){
+            Output o;
+            o.pin = out["pin"].as<String>().c_str();
+            o.type = out["type"] | "COIL";
+            line.outputs.push_back(o);
+        }
+    }
+    // -------- TIMER --------
+    if(obj["timer"].is<JsonObject>()){
+        JsonObject timerObj = obj["timer"];
+        line.hasTimer = true;
+        line.timer.type = timerObj["type"].as<String>().c_str();
+        line.timer.name = timerObj["name"].as<String>().c_str();
+        line.timer.preset = timerObj["preset"];
     }
     return line;
 }

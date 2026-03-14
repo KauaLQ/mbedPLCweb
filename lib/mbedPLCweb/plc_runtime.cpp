@@ -7,6 +7,16 @@ std::vector<Line> program;
 void executePLC(){
     for(auto &line : program){
         bool result = evaluateNode(line.logic);
+
+        // Analisa timers da linha
+        if(line.hasTimer){
+            executeTON(
+                line.timer.name,
+                result,
+                line.timer.preset
+            );
+        }
+
         for(auto &out : line.outputs){
             if(out.type == "COIL"){
                 if(out.pin[0] == 'Q'){
