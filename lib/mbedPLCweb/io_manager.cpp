@@ -16,7 +16,14 @@ std::map<std::string,int> outputMap = {
 };
 
 // Armazena o estado das saídas
-std::map<std::string,bool> outputState;
+// Inicializa o estado das saídas automaticamente baseando-se no outputMap
+std::map<std::string, bool> outputState = []() {
+    std::map<std::string, bool> initialMap;
+    for (auto const& pair : outputMap) {
+        initialMap[pair.first] = false;
+    }
+    return initialMap;
+}();
 
 // Armazena o estado de memórias internas da lógica ladder
 std::map<std::string,bool> memoryState = {
@@ -57,21 +64,19 @@ bool readTag(std::string pin){
     }
 
     if(pin.find('.') != std::string::npos){
-        std::string timerName = pin.substr(0, pin.find('.'));
-        std::string field = pin.substr(pin.find('.')+1);
-        if(timerMap.count(timerName)){
-            Timer &t = timerMap[timerName];
+        size_t dotPos = pin.find('.');
+        std::string name = pin.substr(0, dotPos);
+        std::string field = pin.substr(dotPos + 1);
+
+        if(timerMap.count(name)){
+            Timer &t = timerMap[name];
             if(field == "DN") return t.DN;
             if(field == "TT") return t.TT;
             if(field == "EN") return t.EN;
         }
-    }
-
-    if(pin.find('.') != std::string::npos){
-        std::string counterName = pin.substr(0, pin.find('.'));
-        std::string field = pin.substr(pin.find('.')+1);
-        if(counterMap.count(counterName)){
-            Counter &c = counterMap[counterName];
+        
+        if(counterMap.count(name)){
+            Counter &c = counterMap[name];
             if(field == "DN") return c.DN;
         }
     }
@@ -92,17 +97,6 @@ bool fallingEdge(std::string pin){
     return (prev && !current);
 }
 
-/*
-* TODO: Dar um jeito de remover essa função de inicialização dos
-*       Estados das saídas para deixar o main.cpp mais limpo
-*/
-// Define as entradas para false inicialmente
-void startOutput(){
-    for(auto &out : outputMap){
-        outputState[out.first] = false;
-    }
-}
-
 void writeOutput(std::string pin, bool value){
     int gpio = outputMap[pin];
     outputState[pin] = value;
@@ -113,17 +107,6 @@ void writeMemory(std::string pin, bool value){
     memoryState[pin] = value;
 }
 
-/*
-* NOTE: Em relação ao TON e TOF, eu não sei exatamente como eles funcionam.
-*       Em alguns simuladores Eles são acionados com pulso e fica energinazados sem precisar de selo.
-*       Eles são desativados com uma saída de RESET nomeada com seu label.
-*       Já em alguns outros, é necessário fazer o selo com as próprias saídas do timer, por exemplo.
-*       Atualmente, esta implementação é baseada no segundo caso.
-*       Para o TON permanecer ligado, eu faço um selo com TX.EN, e coloco uma entrada em série para desligar.
-*       e para o TOF permanecer ligado, eu faço um selo com TX.DN, e coloco uma entrada em série para desligar.
-* TODO: Talvez seja interessante padronizar para ambos desligarem com a saída reset nomeada com seus labels
-*       Ao invés de usar selos manuais.
-*/
 void executeTON(std::string name, bool rungCondition, unsigned long preset){
     Timer &t = timerMap[name];
     t.preset = preset;
@@ -183,10 +166,6 @@ void executeTOF(std::string name, bool rungCondition, unsigned long preset){
     }
 }
 
-/*
-* TODO: Talvez seja interessante não resetar o enable do timer,
-*       pois resetar EN reseta a rung de selo, e não só a saída
-*/
 void resetTimer(std::string name){
     Timer &t = timerMap[name];
     t.EN = false;

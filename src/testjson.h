@@ -161,11 +161,21 @@ String testJSON5 = R"rawliteral(
          "op":"OR",
          "nodes":[
            {"type":"CONTACT","pin":"I0","mode":"NC"},
-           {"type":"CONTACT","pin":"T0.EN","mode":"NO"}
+           {"type":"CONTACT","pin":"M0","mode":"NO"}
          ]
        },
        {"type":"CONTACT","pin":"I1","mode":"NO"}
      ]
+   },
+   "outputs":[
+     {"pin":"M0","type":"COIL"}
+   ]
+  },
+  {
+   "logic":{
+     "type":"CONTACT",
+     "pin":"M0",
+     "mode":"NO"
    },
    "timer":{
      "type":"TON",
@@ -295,6 +305,87 @@ String testJSON8 = R"rawliteral(
    "outputs":[
      {"pin":"C0","type":"RESET"}
    ]
+  }
+ ]
+}
+)rawliteral";
+
+String testJSON9 = R"rawliteral(
+{
+ "lines":[
+  {
+   "logic":{
+     "type":"OP",
+     "op":"AND",
+     "nodes":[
+       {
+         "type":"OP",
+         "op":"OR",
+         "nodes":[
+           {"type":"CONTACT","pin":"I0","mode":"NC"},
+           {"type":"CONTACT","pin":"M0","mode":"NO"}
+         ]
+       },
+       {"type":"CONTACT","pin":"I1","mode":"NO"}
+     ]
+   },
+   "outputs":[
+     {"pin":"M0","type":"COIL"}
+   ]
+  },
+  {
+   "logic":{
+     "type":"CONTACT",
+     "pin":"M0",
+     "mode":"NO"
+   },
+   "timer":{
+     "type":"TON",
+     "name":"T0",
+     "preset":3000
+   }
+  },
+  {
+   "logic":{
+     "type":"CONTACT",
+     "pin":"T0.DN",
+     "mode":"NO"
+   },
+   "outputs":[
+     {"pin":"Q0","type":"COIL"}
+   ]
+  },
+  {
+   "logic":{
+     "type":"CONTACT",
+     "pin":"T0.TT",
+     "mode":"NO"
+   },
+   "outputs":[
+     {"pin":"Q1","type":"COIL"}
+   ]
+  },
+  {
+  "logic":{
+    "type":"F_TRIG",
+    "pin":"I2"
+  },
+  "counter":{
+     "type":"CTU",
+     "name":"C0",
+     "preset":3
+   }
+  },
+  {
+  "logic":{
+    "type":"CONTACT",
+    "pin":"C0.DN",
+    "mode":"NO"
+  },
+  "outputs":[
+    {"pin":"T0","type":"RESET"},
+    {"pin":"C0","type":"RESET"}
+  ]
   }
  ]
 }

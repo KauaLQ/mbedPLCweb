@@ -12,10 +12,8 @@ void setup(){
     pinMode(32, OUTPUT);
     pinMode(33, OUTPUT);
 
-    void startOutput();
-
     Serial.begin(115200);
-    parseProgram(testJSON5);
+    parseProgram(testJSON9);
 }
 
 void loop(){
