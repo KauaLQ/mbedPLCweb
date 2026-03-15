@@ -13,7 +13,7 @@ void setup(){
     pinMode(33, OUTPUT);
 
     Serial.begin(115200);
-    parseProgram(testJSON9);
+    parseProgram(testJSON10);
 }
 
 void loop(){

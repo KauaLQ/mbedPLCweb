@@ -6,12 +6,19 @@ enum NodeType {
     CONTACT,
     R_TRIG,
     F_TRIG,
+    COMPARE,
     OP
 };
 
 enum OpType {
     AND,
     OR
+};
+
+struct CompareNode{
+    std::string left;
+    std::string op;
+    std::string right;
 };
 
 struct Node {
@@ -22,6 +29,8 @@ struct Node {
     // OP
     OpType op;
     std::vector<Node> nodes;
+    // COMPARE
+    CompareNode cmp;
 };
 
 struct Output {

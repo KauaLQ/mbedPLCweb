@@ -1,6 +1,7 @@
 #ifndef IO_MANAGER_H
 #define IO_MANAGER_H
 
+long readTagValue(std::string tag);
 bool readTag(std::string pin);
 bool risingEdge(std::string pin);
 bool fallingEdge(std::string pin);

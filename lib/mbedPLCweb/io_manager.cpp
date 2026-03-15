@@ -49,6 +49,43 @@ std::map<std::string, Counter> counterMap = {
 
 std::map<std::string,bool> previousState;
 
+/*
+* NOTE: Esse map serve para a implementação futura de entradas analógicas.
+*       Eu pretendo utilizar um AD externo para essa tarefa, como exemplo o ADS1115.
+*       Então, na prática, o map seria algo como <NOME, ENDEREÇO> e não <NOME, PINO>.
+*/
+std::map<std::string,int> analogMap = {
+    {"A0",34},
+    {"A1",35}
+};
+
+long readTagValue(std::string tag){
+    // campo tipo T0.ACC ou C0.ACC
+    if(tag.find('.') != std::string::npos){
+        size_t dotPos = tag.find('.');
+        std::string name = tag.substr(0, dotPos);
+        std::string field = tag.substr(dotPos + 1);
+
+        if(timerMap.count(name)){
+            Timer &t = timerMap[name];
+            if(field == "ACC") return t.accum;
+            if(field == "PRE") return t.preset;
+        }
+        if(counterMap.count(name)){
+            Counter &c = counterMap[name];
+            if(field == "ACC") return c.ACC;
+            if(field == "PRE") return c.PRE;
+        }
+        // Implementação futura, provavelmente será alterada
+        if(analogMap.count(tag)){
+            int gpio = analogMap[tag];
+            return analogRead(gpio);
+        }
+    }
+    // fallback
+    return 0;
+}
+
 bool readTag(std::string pin){
     if(inputMap.count(pin)){
         int gpio = inputMap[pin];

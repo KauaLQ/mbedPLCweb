@@ -22,6 +22,12 @@ Node parseNode(JsonObject obj){
         node.type = F_TRIG;
         node.pin = obj["pin"].as<String>().c_str();
     }
+    else if(type == "COMPARE"){
+        node.type = COMPARE;
+        node.cmp.left = obj["left"].as<String>().c_str();
+        node.cmp.op = obj["op"].as<String>().c_str();
+        node.cmp.right = obj["right"].as<String>().c_str();
+    }
     else if(type == "OP"){
         node.type = OP;
         String op = obj["op"];
