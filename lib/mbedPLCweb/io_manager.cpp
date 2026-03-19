@@ -230,3 +230,27 @@ void resetCounter(std::string name){
     c.ACC = 0;
     c.DN = false;
 }
+
+void resetPLCState(){
+    // -------- OUTPUTS --------
+    for(auto &out : outputState){
+        out.second = false;
+        digitalWrite(outputMap[out.first], LOW);
+    }
+    // -------- MEMÓRIAS --------
+    for(auto &mem : memoryState){
+        mem.second = false;
+    }
+    // -------- TIMERS --------
+    for(auto &t : timerMap){
+        t.second = Timer(); // reset total
+    }
+    // -------- COUNTERS --------
+    for(auto &c : counterMap){
+        c.second = Counter();
+    }
+    // -------- EDGE DETECTION --------
+    previousState.clear();
+
+    Serial.println("PLC state resetado!");
+}

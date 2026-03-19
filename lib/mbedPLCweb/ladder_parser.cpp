@@ -84,14 +84,14 @@ Line parseLine(JsonObject obj){
     return line;
 }
 
-void parseProgram(String json){
+bool parseProgram(String json){
     JsonDocument doc;
     DeserializationError error = deserializeJson(doc,json);
 
     if(error){
         Serial.print("Erro ao parsear JSON: ");
         Serial.println(error.c_str());
-        return;
+        return false;
     }
 
     JsonArray lines = doc["lines"];
@@ -103,4 +103,5 @@ void parseProgram(String json){
     }
 
     Serial.println("Programa carregado!");
+    return true;
 }

@@ -3,6 +3,6 @@
 
 #include <Arduino.h>
 
-void parseProgram(String json);
+bool parseProgram(String json);
 
 #endif
