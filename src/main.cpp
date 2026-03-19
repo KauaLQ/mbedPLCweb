@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "LittleFS.h"
 #include "plc_runtime.h"
 #include "ladder_parser.h"
 #include "io_manager.h"
@@ -20,6 +21,40 @@ void blinkLED(int pin){
     vTaskDelay(pdMS_TO_TICKS(100));
     digitalWrite(pin, LOW);
     vTaskDelay(pdMS_TO_TICKS(100));
+}
+
+bool saveProgramToFlash(String json){
+    // LittleFS gerencia o truncamento (limpeza) de forma mais segura
+    File file = LittleFS.open("/program.json", FILE_WRITE); 
+    if(!file){
+        Serial.println("Erro ao abrir arquivo para escrita");
+        return false;
+    }
+    if(file.print(json)){
+        Serial.println("Dados gravados com sucesso!");
+    } else {
+        Serial.println("Falha na gravação!");
+    }
+    file.close();
+    return true;
+}
+
+bool loadProgramFromFlash(){
+    if(!LittleFS.exists("/program.json")){
+        Serial.println("Nenhum programa salvo no LittleFS");
+        return false;
+    }
+
+    File file = LittleFS.open("/program.json", FILE_READ);
+    if(!file){
+        Serial.println("Erro ao abrir arquivo para leitura");
+        return false;
+    }
+
+    String json = file.readString();
+    file.close();
+    Serial.println("Programa carregado do LittleFS.");
+    return parseProgram(json);
 }
 
 void plcTask(void *pvParameters){
@@ -58,6 +93,7 @@ void serialTask(void *pvParameters){
                         resetPLCState();
                         xSemaphoreGive(plcMutex);
                     }
+                    saveProgramToFlash(json);
                     blinkLED(2); // Feedback para o usuário de upload bem-sucedido
                 }
                 else{
@@ -82,7 +118,13 @@ void setup(){
 
     plcMutex = xSemaphoreCreateMutex();
 
-    parseProgram(testJSON10); // programa default
+    if(!LittleFS.begin(true)){
+        Serial.println("Erro ao montar LittleFS");
+    }
+    if(!loadProgramFromFlash()){
+        Serial.println("Carregando programa default...");
+        parseProgram(testJSON10);
+    }
 
     xTaskCreatePinnedToCore(plcTask, "PLC Task", 4096, NULL, 1, NULL, 1);
     xTaskCreatePinnedToCore(serialTask, "Serial Task", 4096, NULL, 2, NULL, 0);
