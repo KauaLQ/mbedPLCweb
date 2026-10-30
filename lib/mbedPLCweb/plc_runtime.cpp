@@ -1,80 +1,72 @@
-#include "include/ladder_types.h"
+#include <Arduino.h>
+#include <atomic>
+#include "include/plc_runtime.h"
 #include "include/ladder_executor.h"
 #include "include/io_manager.h"
 
-std::vector<Line> program;
+// Programa em execução: só o plcTask mexe nele
+static Program *activeProgram = nullptr;
+// Programa novo (já validado) esperando o próximo scan
+static std::atomic<Program*> pendingProgram{nullptr};
 
-void executePLC(){
-    for(auto &line : program){
-        bool result = evaluateNode(line.logic);
+void submitProgram(Program *program){
+    // se havia um programa pendente que ninguém consumiu, descarta
+    delete pendingProgram.exchange(program);
+}
 
-        // Analisa timers da linha
-        if(line.hasTimer){
-            if(line.timer.type == "TON"){
-                executeTON(
-                    line.timer.name,
-                    result,
-                    line.timer.preset
-                );
-            }
-            else if(line.timer.type == "TOF"){
-                executeTOF(
-                    line.timer.name,
-                    result,
-                    line.timer.preset
-                );
-            }
-        }
+static void executeLine(Line &line){
+    bool result = evaluateNode(line.logic);
 
-        if(line.hasCounter){
-            if(line.counter.type == "CTU"){
-                executeCTU(
-                    line.counter.name,
-                    result,
-                    line.counter.preset
-                );
-            }
-        }
-
-        for(auto &out : line.outputs){
-            if(out.type == "COIL"){
-                if(out.pin[0] == 'Q'){
-                    writeOutput(out.pin,result);
-                }
-                else if(out.pin[0] == 'M'){
-                    writeMemory(out.pin,result);
-                }
-            }
-            if(out.type == "SET"){
-                if(result){
-                    if(out.pin[0] == 'Q'){
-                        writeOutput(out.pin,true);
-                    }
-                    else if(out.pin[0] == 'M'){
-                        writeMemory(out.pin,true);
-                    }
-                }
-            }
-            if(out.type == "RESET"){
-                if(result){
-                    if(out.pin[0] == 'Q'){
-                        writeOutput(out.pin,false);
-                    }
-                    else if(out.pin[0] == 'M'){
-                        writeMemory(out.pin,false);
-                    }
-                    /*
-                    * TODO: seria interessante que ao invés dessa gambiarra de usar o mesmo RESET para 
-                    *       SET e timers/counters, fosse criado um novo type só para timers/counters
-                    */
-                    else if(out.pin[0] == 'T'){
-                        resetTimer(out.pin);
-                    }
-                    else if(out.pin[0] == 'C'){
-                        resetCounter(out.pin);
-                    }
-                }
-            }
+    for(auto &out : line.outputs){
+        switch(out.type){
+            case OUT_COIL:
+                writeTag(out.target, result);
+                break;
+            case OUT_SET:
+                if(result) writeTag(out.target, true);
+                break;
+            case OUT_RESET:
+                if(result) writeTag(out.target, false);
+                break;
+            case OUT_TON:
+                executeTON(out.target.index, result, out.preset);
+                break;
+            case OUT_TOF:
+                executeTOF(out.target.index, result, out.preset);
+                break;
+            case OUT_CTU:
+                executeCTU(out.target.index, result, (int)out.preset);
+                break;
+            case OUT_RES_TIMER:
+                if(result) resetTimer(out.target.index);
+                break;
+            case OUT_RES_COUNTER:
+                if(result) resetCounter(out.target.index);
+                break;
         }
     }
+}
+
+void executePLC(){
+    // Troca de programa sempre entre scans: nunca no meio de um
+    Program *next = pendingProgram.exchange(nullptr);
+    if(next){
+        delete activeProgram;
+        activeProgram = next;
+        resetPLCState();
+    }
+
+    /*
+    scan cycle:
+    1 snapshot das entradas
+    2 executar linhas (só mexe nas imagens/memórias)
+    3 escrever as saídas físicas
+    */
+    readInputs();
+    if(activeProgram){
+        for(auto &line : *activeProgram){
+            executeLine(line);
+        }
+    }
+    writeOutputs();
 }

@@ -1,0 +1,1 @@
+{"lines":[{"logic":{"type":"R_TRIG","pin":"I0"},"outputs":[{"type":"CTU","pin":"C0","preset":5}]},{"logic":{"type":"R_TRIG","pin":"I0"},"outputs":[{"type":"CTU","pin":"C1","preset":5}]}]}

@@ -1,0 +1,1 @@
+{"lines":[{"logic":{"type":"OP","op":"AND","nodes":[{"type":"OP","op":"OR","nodes":[{"type":"CONTACT","pin":"I0","mode":"NO"},{"type":"CONTACT","pin":"M0","mode":"NO"}]},{"type":"CONTACT","pin":"I1","mode":"NC"}]},"outputs":[{"type":"COIL","pin":"M0"}]},{"logic":{"type":"CONTACT","pin":"M0","mode":"NO"},"outputs":[{"type":"COIL","pin":"Q0"}]}]}

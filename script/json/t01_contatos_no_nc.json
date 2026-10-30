@@ -1,0 +1,1 @@
+{"lines":[{"logic":{"type":"CONTACT","pin":"I0","mode":"NO"},"outputs":[{"type":"COIL","pin":"Q0"}]},{"logic":{"type":"CONTACT","pin":"I1","mode":"NC"},"outputs":[{"type":"COIL","pin":"Q1"}]}]}

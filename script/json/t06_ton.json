@@ -1,0 +1,1 @@
+{"lines":[{"logic":{"type":"CONTACT","pin":"I0","mode":"NO"},"outputs":[{"type":"TON","pin":"T0","preset":3000}]},{"logic":{"type":"CONTACT","pin":"T0.DN","mode":"NO"},"outputs":[{"type":"COIL","pin":"Q0"}]},{"logic":{"type":"CONTACT","pin":"T0.TT","mode":"NO"},"outputs":[{"type":"COIL","pin":"Q1"}]}]}

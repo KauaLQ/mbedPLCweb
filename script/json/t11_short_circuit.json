@@ -1,0 +1,1 @@
+{"lines":[{"logic":{"type":"OP","op":"AND","nodes":[{"type":"CONTACT","pin":"I0","mode":"NO"},{"type":"R_TRIG","pin":"I1"}]},"outputs":[{"type":"CTU","pin":"C0","preset":10}]}]}

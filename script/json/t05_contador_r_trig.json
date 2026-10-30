@@ -1,0 +1,1 @@
+{"lines":[{"logic":{"type":"R_TRIG","pin":"I0"},"outputs":[{"type":"CTU","pin":"C0","preset":3}]},{"logic":{"type":"CONTACT","pin":"C0.DN","mode":"NO"},"outputs":[{"type":"COIL","pin":"Q0"}]},{"logic":{"type":"CONTACT","pin":"I1","mode":"NO"},"outputs":[{"type":"RES_COUNTER","pin":"C0"}]}]}

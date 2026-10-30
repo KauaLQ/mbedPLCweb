@@ -1,60 +1,52 @@
-#include "include/ladder_types.h"
+#include "include/ladder_executor.h"
 #include "include/io_manager.h"
 
-bool evaluateCompare(CompareNode &cmp){
+static bool evaluateCompare(const CompareNode &cmp){
     long left = readTagValue(cmp.left);
-    long right;
+    long right = readTagValue(cmp.right);
 
-    if(isdigit(cmp.right[0]) || cmp.right[0] == '-'){
-        right = atol(cmp.right.c_str());
+    switch(cmp.op){
+        case CMP_GT: return left > right;
+        case CMP_LT: return left < right;
+        case CMP_GE: return left >= right;
+        case CMP_LE: return left <= right;
+        case CMP_EQ: return left == right;
+        case CMP_NE: return left != right;
     }
-    else{
-        right = readTagValue(cmp.right);
-    }
-    if(cmp.op == ">") return left > right;
-    if(cmp.op == "<") return left < right;
-    if(cmp.op == ">=") return left >= right;
-    if(cmp.op == "<=") return left <= right;
-    if(cmp.op == "==") return left == right;
-    if(cmp.op == "!=") return left != right;
-
     return false;
 }
 
+// O estado anterior fica no próprio nó, então duas linhas com R_TRIG
+// no mesmo pino não interferem entre si.
+static bool detectEdge(Node &node, bool rising){
+    bool current = readTag(node.tag);
+    bool edge = false;
+
+    // No primeiro scan só memoriza o estado: evita "borda" falsa ao ligar/carregar
+    if(node.primed){
+        edge = rising ? (!node.prev && current) : (node.prev && !current);
+    }
+    node.prev = current;
+    node.primed = true;
+    return edge;
+}
+
 bool evaluateNode(Node &node){
-    if(node.type == CONTACT){
-        bool value = readTag(node.pin);
-        if(node.mode == "NC"){
-            value = !value;
+    switch(node.type){
+        case CONTACT: {
+            bool value = readTag(node.tag);
+            return node.invert ? !value : value;
         }
-        return value;
-    }
-
-    if(node.type == R_TRIG){
-        return risingEdge(node.pin);
-    }
-
-    if(node.type == F_TRIG){
-        return fallingEdge(node.pin);
-    }
-
-    if(node.type == COMPARE){
-        return evaluateCompare(node.cmp);
-    }
-
-    if(node.type == OP){
-        if(node.op == AND){
-            bool result = true;
+        case R_TRIG:  return detectEdge(node, true);
+        case F_TRIG:  return detectEdge(node, false);
+        case COMPARE: return evaluateCompare(node.cmp);
+        case OP: {
+            bool result = (node.op == AND);
+            // Avalia SEMPRE todos os filhos (sem short-circuit),
+            // senão um R_TRIG/F_TRIG que não foi avaliado perde a borda.
             for(auto &child : node.nodes){
-                result = result && evaluateNode(child);
-            }
-            return result;
-        }
-
-        if(node.op == OR){
-            bool result = false;
-            for(auto &child : node.nodes){
-                result = result || evaluateNode(child);
+                bool value = evaluateNode(child);
+                result = (node.op == AND) ? (result && value) : (result || value);
             }
             return result;
         }

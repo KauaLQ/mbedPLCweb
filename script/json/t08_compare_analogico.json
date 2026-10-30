@@ -1,0 +1,1 @@
+{"lines":[{"logic":{"type":"CONTACT","pin":"I0","mode":"NO"},"outputs":[{"type":"TON","pin":"T0","preset":5000}]},{"logic":{"type":"COMPARE","left":"T0.ACC","op":">=","right":"2500"},"outputs":[{"type":"COIL","pin":"Q0"}]},{"logic":{"type":"COMPARE","left":"A0","op":">","right":2000},"outputs":[{"type":"COIL","pin":"Q1"}]}]}

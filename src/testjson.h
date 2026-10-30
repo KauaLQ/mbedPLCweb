@@ -1,396 +1,17 @@
 #include <Arduino.h>
 
-String testJSON = R"rawliteral(
-{
- "lines":[
-  {
-   "logic":{
-     "type":"OP",
-     "op":"OR",
-     "nodes":[
-       {
-         "type":"OP",
-         "op":"OR",
-         "nodes":[
-           {"type":"CONTACT","pin":"I0","mode":"NO"},
-           {"type":"CONTACT","pin":"I1","mode":"NO"}
-         ]
-       },
-       {"type":"CONTACT","pin":"I2","mode":"NO"}
-     ]
-   },
-   "outputs":[
-     {"pin":"Q0","type":"COIL"},
-     {"pin":"Q1","type":"COIL"}
-   ]
-  }
- ]
-}
-)rawliteral";
-
-String testJSON2 = R"rawliteral(
-{
- "lines":[
-  {
-    "logic":{
-      "type":"OP",
-      "op":"AND",
-      "nodes":[
-        {
-          "type":"OP",
-          "op":"OR",
-          "nodes":[
-            {
-              "type":"OP",
-              "op":"AND",
-              "nodes":[
-                {"type":"CONTACT","pin":"I0","mode":"NC"},
-                {"type":"CONTACT","pin":"I1","mode":"NC"}
-              ]
-            },
-            {"type":"CONTACT","pin":"Q0","mode":"NO"}
-          ]
-        },
-        {"type":"CONTACT","pin":"I2","mode":"NO"}
-      ]
-    },
-    "outputs":[
-      {"pin":"Q0","type":"COIL"},
-      {"pin":"Q1","type":"COIL"}
-    ]
-  }
- ]
-}
-)rawliteral";
-
-String testJSON3 = R"rawliteral(
-{
- "lines":[
-  {
-    "logic":{
-      "type":"OP",
-      "op":"AND",
-      "nodes":[
-        {
-          "type":"OP",
-          "op":"OR",
-          "nodes":[
-            {
-              "type":"OP",
-              "op":"AND",
-              "nodes":[
-                {"type":"CONTACT","pin":"I0","mode":"NC"},
-                {"type":"CONTACT","pin":"I1","mode":"NC"}
-              ]
-            },
-            {"type":"CONTACT","pin":"Q0","mode":"NO"}
-          ]
-        },
-        {"type":"CONTACT","pin":"I2","mode":"NO"}
-      ]
-    },
-    "outputs":[
-      {"pin":"Q0","type":"COIL"},
-      {"pin":"M0","type":"COIL"}
-    ]
-  },
-  {
-    "logic":{
-              "type":"OP",
-              "op":"AND",
-              "nodes":[
-                {"type":"CONTACT","pin":"M0","mode":"NO"},
-                {"type":"CONTACT","pin":"I3","mode":"NC"}
-              ]
-    },
-    "outputs":[
-      {"pin":"Q1","type":"COIL"}
-    ]
-  }
- ]
-}
-)rawliteral";
-
-String testJSON4 = R"rawliteral(
-{
- "lines":[
-  {
-   "logic":{
-     "type":"CONTACT",
-     "pin":"I0",
-     "mode":"NC"
-   },
-   "outputs":[
-     {"pin":"M0","type":"SET"}
-   ]
-  },
-  {
-   "logic":{
-     "type":"CONTACT",
-     "pin":"I1",
-     "mode":"NC"
-   },
-   "outputs":[
-     {"pin":"M0","type":"RESET"}
-   ]
-  },
-  {
-   "logic":{
-     "type":"CONTACT",
-     "pin":"M0",
-     "mode":"NO"
-   },
-   "outputs":[
-     {"pin":"Q0","type":"COIL"}
-   ]
-  }
- ]
-}
-)rawliteral";
-
-String testJSON5 = R"rawliteral(
-{
- "lines":[
-  {
-   "logic":{
-     "type":"OP",
-     "op":"AND",
-     "nodes":[
-       {
-         "type":"OP",
-         "op":"OR",
-         "nodes":[
-           {"type":"CONTACT","pin":"I0","mode":"NC"},
-           {"type":"CONTACT","pin":"M0","mode":"NO"}
-         ]
-       },
-       {"type":"CONTACT","pin":"I1","mode":"NO"}
-     ]
-   },
-   "outputs":[
-     {"pin":"M0","type":"COIL"}
-   ]
-  },
-  {
-   "logic":{
-     "type":"CONTACT",
-     "pin":"M0",
-     "mode":"NO"
-   },
-   "timer":{
-     "type":"TON",
-     "name":"T0",
-     "preset":3000
-   }
-  },
-  {
-   "logic":{
-     "type":"CONTACT",
-     "pin":"T0.DN",
-     "mode":"NO"
-   },
-   "outputs":[
-     {"pin":"Q0","type":"COIL"}
-   ]
-  },
-  {
-   "logic":{
-     "type":"CONTACT",
-     "pin":"T0.TT",
-     "mode":"NO"
-   },
-   "outputs":[
-     {"pin":"Q1","type":"COIL"}
-   ]
-  },
-  {
-  "logic":{
-    "type":"CONTACT",
-    "pin":"I2",
-    "mode":"NC"
-  },
-  "outputs":[
-    {"pin":"T0","type":"RESET"}
-  ]
-  }
- ]
-}
-)rawliteral";
-
-String testJSON6 = R"rawliteral(
-{
- "lines":[
-  {
-   "logic":{
-     "type":"CONTACT",
-     "pin":"I0",
-     "mode":"NC"
-   },
-   "timer":{
-     "type":"TOF",
-     "name":"T0",
-     "preset":3000
-   }
-  },
-  {
-   "logic":{
-     "type":"CONTACT",
-     "pin":"T0.DN",
-     "mode":"NO"
-   },
-   "outputs":[
-     {"pin":"Q0","type":"COIL"}
-   ]
-  }
- ]
-}
-)rawliteral";
-
-String testJSON7 = R"rawliteral(
-{
- "lines":[
-  {
-   "logic":{
-     "type":"F_TRIG",
-     "pin":"I0"
-   },
-   "outputs":[
-     {"pin":"M0","type":"SET"}
-   ]
-  },
-  {
-   "logic":{
-     "type":"CONTACT",
-     "pin":"M0",
-     "mode":"NO"
-   },
-   "outputs":[
-     {"pin":"Q0","type":"COIL"}
-   ]
-  }
- ]
-}
-)rawliteral";
-
-String testJSON8 = R"rawliteral(
-{
- "lines":[
-  {
-   "logic":{
-     "type":"R_TRIG",
-     "pin":"I0"
-   },
-   "counter":{
-     "type":"CTU",
-     "name":"C0",
-     "preset":3
-   }
-  },
-  {
-   "logic":{
-     "type":"CONTACT",
-     "pin":"C0.DN",
-     "mode":"NO"
-   },
-   "outputs":[
-     {"pin":"Q0","type":"COIL"}
-   ]
-  },
-  {
-   "logic":{
-     "type":"CONTACT",
-     "pin":"I1",
-     "mode":"NC"
-   },
-   "outputs":[
-     {"pin":"C0","type":"RESET"}
-   ]
-  }
- ]
-}
-)rawliteral";
-
-String testJSON9 = R"rawliteral(
-{
- "lines":[
-  {
-   "logic":{
-     "type":"OP",
-     "op":"AND",
-     "nodes":[
-       {
-         "type":"OP",
-         "op":"OR",
-         "nodes":[
-           {"type":"CONTACT","pin":"I0","mode":"NC"},
-           {"type":"CONTACT","pin":"M0","mode":"NO"}
-         ]
-       },
-       {"type":"CONTACT","pin":"I1","mode":"NO"}
-     ]
-   },
-   "outputs":[
-     {"pin":"M0","type":"COIL"}
-   ]
-  },
-  {
-   "logic":{
-     "type":"CONTACT",
-     "pin":"M0",
-     "mode":"NO"
-   },
-   "timer":{
-     "type":"TON",
-     "name":"T0",
-     "preset":3000
-   }
-  },
-  {
-   "logic":{
-     "type":"CONTACT",
-     "pin":"T0.DN",
-     "mode":"NO"
-   },
-   "outputs":[
-     {"pin":"Q0","type":"COIL"}
-   ]
-  },
-  {
-   "logic":{
-     "type":"CONTACT",
-     "pin":"T0.TT",
-     "mode":"NO"
-   },
-   "outputs":[
-     {"pin":"Q1","type":"COIL"}
-   ]
-  },
-  {
-  "logic":{
-    "type":"F_TRIG",
-    "pin":"I2"
-  },
-  "counter":{
-     "type":"CTU",
-     "name":"C0",
-     "preset":3
-   }
-  },
-  {
-  "logic":{
-    "type":"CONTACT",
-    "pin":"C0.DN",
-    "mode":"NO"
-  },
-  "outputs":[
-    {"pin":"T0","type":"RESET"},
-    {"pin":"C0","type":"RESET"}
-  ]
-  }
- ]
-}
-)rawliteral";
-
+/*
+* Programa default (usado quando não há programa salvo na flash).
+* Entradas são ativas em nível baixo: contato NO = botão PRESSIONADO.
+*
+*   I0 = start | I1 = stop (contato NC: fecha enquanto solto) | I2 = incrementa contador
+*   L1: M0 = (I0 OU M0) E NÃO I1            (selo)
+*   L2: M0 liga o timer T0 (5 s)
+*   L3: T0.DN  -> Q0
+*   L4: borda de subida de I2 conta em C0 (preset 3)
+*   L5: T0.ACC >= 2500 -> Q1
+*   L6: C0.DN reseta T0 e C0
+*/
 String testJSON10 = R"rawliteral(
 {
  "lines":[
@@ -403,71 +24,47 @@ String testJSON10 = R"rawliteral(
          "type":"OP",
          "op":"OR",
          "nodes":[
-           {"type":"CONTACT","pin":"I0","mode":"NC"},
+           {"type":"CONTACT","pin":"I0","mode":"NO"},
            {"type":"CONTACT","pin":"M0","mode":"NO"}
          ]
        },
-       {"type":"CONTACT","pin":"I1","mode":"NO"}
+       {"type":"CONTACT","pin":"I1","mode":"NC"}
      ]
    },
    "outputs":[
-     {"pin":"M0","type":"COIL"}
+     {"type":"COIL","pin":"M0"}
    ]
   },
   {
-   "logic":{
-     "type":"CONTACT",
-     "pin":"M0",
-     "mode":"NO"
-   },
-   "timer":{
-     "type":"TON",
-     "name":"T0",
-     "preset":5000
-   }
-  },
-  {
-   "logic":{
-     "type":"CONTACT",
-     "pin":"T0.DN",
-     "mode":"NO"
-   },
+   "logic":{"type":"CONTACT","pin":"M0","mode":"NO"},
    "outputs":[
-     {"pin":"Q0","type":"COIL"}
+     {"type":"TON","pin":"T0","preset":5000}
    ]
   },
   {
-  "logic":{
-    "type":"F_TRIG",
-    "pin":"I2"
-  },
-  "counter":{
-     "type":"CTU",
-     "name":"C0",
-     "preset":3
-   }
+   "logic":{"type":"CONTACT","pin":"T0.DN","mode":"NO"},
+   "outputs":[
+     {"type":"COIL","pin":"Q0"}
+   ]
   },
   {
-  "logic":{
-    "type":"COMPARE",
-    "left":"T0.ACC",
-    "op":">=",
-    "right":"2500"
-  },
-  "outputs":[
-    {"pin":"Q1","type":"COIL"}
-  ]
+   "logic":{"type":"R_TRIG","pin":"I2"},
+   "outputs":[
+     {"type":"CTU","pin":"C0","preset":3}
+   ]
   },
   {
-  "logic":{
-    "type":"CONTACT",
-    "pin":"C0.DN",
-    "mode":"NO"
+   "logic":{"type":"COMPARE","left":"T0.ACC","op":">=","right":"2500"},
+   "outputs":[
+     {"type":"COIL","pin":"Q1"}
+   ]
   },
-  "outputs":[
-    {"pin":"T0","type":"RESET"},
-    {"pin":"C0","type":"RESET"}
-  ]
+  {
+   "logic":{"type":"CONTACT","pin":"C0.DN","mode":"NO"},
+   "outputs":[
+     {"type":"RES_TIMER","pin":"T0"},
+     {"type":"RES_COUNTER","pin":"C0"}
+   ]
   }
  ]
 }
