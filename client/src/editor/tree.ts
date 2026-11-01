@@ -31,22 +31,22 @@ export function updateNode(n: LogicNode, id: string, fn: (x: LogicNode) => Logic
 }
 
 // Insere `fresh` ao lado de `targetId`: em série (AND) ou em paralelo (OR)
-export function addNear(n: LogicNode, targetId: string, op: "AND" | "OR", fresh: LogicNode): LogicNode {
-  if (n.id === targetId) return { id: uid(), type: "OP", op, nodes: [n, fresh] };
+export function addNear(n: LogicNode, targetId: string, op: "AND" | "OR", fresh: LogicNode, before = false): LogicNode {
+  if (n.id === targetId) return { id: uid(), type: "OP", op, nodes: before ? [fresh, n] : [n, fresh] };
   if (n.type !== "OP") return n;
   const idx = n.nodes.findIndex((c) => c.id === targetId);
   if (idx >= 0 && n.op === op) {
     const nodes = [...n.nodes];
-    nodes.splice(idx + 1, 0, fresh);
+    nodes.splice(before ? idx : idx + 1, 0, fresh);
     return { ...n, nodes };
   }
-  return { ...n, nodes: n.nodes.map((c) => addNear(c, targetId, op, fresh)) };
+  return { ...n, nodes: n.nodes.map((c) => addNear(c, targetId, op, fresh, before)) };
 }
 
-function remove(n: LogicNode, id: string): LogicNode | null {
+export function removeNode(n: LogicNode, id: string): LogicNode | null {
   if (n.id === id) return null;
   if (n.type !== "OP") return n;
-  const nodes = n.nodes.map((c) => remove(c, id)).filter((c): c is LogicNode => c !== null);
+  const nodes = n.nodes.map((c) => removeNode(c, id)).filter((c): c is LogicNode => c !== null);
   if (nodes.length === 0) return null;
   return nodes.length === 1 ? nodes[0] : { ...n, nodes };
 }
@@ -87,7 +87,7 @@ export const addNode = (p: Program, rungId: string, nodeId: string, op: "AND" | 
 };
 
 export const deleteNode = (p: Program, rungId: string, nodeId: string): Program =>
-  mapRung(p, rungId, (r) => ({ ...r, logic: remove(r.logic, nodeId) ?? newContact() }));
+  mapRung(p, rungId, (r) => ({ ...r, logic: removeNode(r.logic, nodeId) ?? newContact() }));
 
 export const addOutput = (p: Program, rungId: string): [Program, string] => {
   const o = newOutput();
@@ -112,4 +112,53 @@ export function editOutput(p: Program, rungId: string, outId: string, patch: Par
       return next;
     }),
   }));
+}
+
+// ---------------- arrastar e soltar ----------------
+// before/after = em série antes/depois do alvo | above/below = em paralelo acima/abaixo
+export type DropZone = "before" | "after" | "above" | "below";
+export interface DropHint { rungId: string; nodeId: string; zone: DropZone }
+
+export function collectIds(n: LogicNode): string[] {
+  return n.type === "OP" ? [n.id, ...n.nodes.flatMap(collectIds)] : [n.id];
+}
+
+export function describeNode(n: LogicNode): string {
+  switch (n.type) {
+    case "CONTACT": return n.mode === "NC" ? `${n.pin} (NC)` : n.pin;
+    case "R_TRIG": return `${n.pin} ↑`;
+    case "F_TRIG": return `${n.pin} ↓`;
+    case "COMPARE": return `${n.left} ${n.op} ${n.right}`;
+    case "OP": return n.op === "AND" ? "bloco em série" : "bloco em paralelo";
+  }
+}
+
+// Move um elemento (ou grupo) para perto de `to.nodeId`, na mesma linha ou em outra.
+// Ex.: OR[AND[I1,I0], I2] + soltar I2 "em paralelo" com I1  ->  AND[OR[I1,I2], I0]
+export function moveNode(
+  p: Program,
+  from: { rungId: string; nodeId: string },
+  to: DropHint,
+): Program {
+  const src = p.lines.find((r) => r.id === from.rungId);
+  const dst = p.lines.find((r) => r.id === to.rungId);
+  if (!src || !dst) return p;
+  const moving = findNode(src.logic, from.nodeId);
+  if (!moving) return p;
+  if (from.rungId === to.rungId && findNode(moving, to.nodeId)) return p;   // alvo dentro do próprio bloco
+
+  const op = to.zone === "before" || to.zone === "after" ? "AND" : "OR";
+  const before = to.zone === "before" || to.zone === "above";
+  const srcRest = removeNode(src.logic, from.nodeId) ?? newContact();
+
+  return {
+    lines: p.lines.map((r) => {
+      if (r.id === from.rungId && r.id === to.rungId) {
+        return { ...r, logic: normalize(addNear(srcRest, to.nodeId, op, moving, before)) };
+      }
+      if (r.id === from.rungId) return { ...r, logic: normalize(srcRest) };
+      if (r.id === to.rungId) return { ...r, logic: normalize(addNear(r.logic, to.nodeId, op, moving, before)) };
+      return r;
+    }),
+  };
 }

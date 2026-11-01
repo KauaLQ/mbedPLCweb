@@ -1,4 +1,5 @@
 import type { Snapshot } from "../engine/plc";
+import { fmtSec } from "../engine/format";
 
 const flag = (on: boolean, label: string) => <span className={on ? "flag on" : "flag"}>{label}</span>;
 
@@ -19,7 +20,7 @@ export function MonitorPanel({ snap }: { snap: Snapshot }) {
             <tr key={i}>
               <td className="mono">T{i}</td>
               <td>{flag(t.EN, "EN")}{flag(t.TT, "TT")}{flag(t.DN, "DN")}</td>
-              <td className="mono num">{t.accum} / {t.preset}</td>
+              <td className="mono num">{fmtSec(t.accum)} / {fmtSec(t.preset)} s</td>
             </tr>
           ))}
         </tbody>

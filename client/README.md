@@ -20,7 +20,7 @@ npm run build      # typecheck + build de produção em dist/
 ```
 
 ## Estrutura
-
+ 
 ```
 mbedplc-web/
 ├─ index.html
@@ -32,6 +32,7 @@ mbedplc-web/
    ├─ styles.css                tema industrial claro/escuro (variáveis CSS)
    ├─ engine/                   MOTOR (sem React): mesma semântica do firmware
    │  ├─ types.ts               modelo do programa (mesmas chaves do JSON do firmware)
+   │  ├─ format.ts              fmtSec(): ms -> segundos com 1 casa
    │  ├─ tags.ts                tags válidas e resolveTag() (I0, T0.DN, C1.ACC, A0, 2500)
    │  └─ plc.ts                 PlcEngine: scan, timers, contadores, bordas, image table
    ├─ editor/                   operações puras sobre o programa
@@ -48,17 +49,21 @@ mbedplc-web/
       ├─ LadderNode.tsx         desenho SVG dos elementos e fluxo de energia
       └─ Inspector.tsx          edição do elemento/saída selecionado
 ```
-
+ 
 ## Como usar o editor
-
+ 
 - Clique em um contato ou em uma saída para selecioná-lo; edite no **Inspetor**.
 - **+ Série** insere um contato depois do selecionado; **+ Paralelo** abre um ramo paralelo.
+- **Arrastar e soltar** reorganiza a lógica sem excluir/recriar:
+  - arraste um contato; ou a **conexão de um ramo** (trecho de fio à esquerda do ramo) para mover o ramo inteiro; ou a **barra vertical** de um bloco paralelo para mover o bloco todo;
+  - solte na **metade esquerda/direita** de outro elemento para ficar **em série** antes/depois dele, ou na **metade de cima/de baixo** para ficar **em paralelo** com ele;
+  - funciona também entre linhas; a marca azul mostra onde o elemento vai entrar.
+  - Ex.: `(I1 E I0) OU I2` vira `(I1 OU I2) E I0` arrastando I2 para a metade de baixo de I1.
 - **+ saída** (cabeçalho da linha) adiciona COIL, SET, RESET, TON, TOF, CTU, RES_TIMER ou RES_COUNTER.
 - Entradas: *botão* só fica ativo enquanto pressionado; *chave* mantém a posição.
 - Editar o programa zera o estado da simulação (como um upload no firmware). **Parar** também zera.
-
 ## Fidelidade com o firmware
-
+ 
 O motor (`engine/plc.ts`) segue o mesmo ciclo: snapshot das entradas → lógica sobre as imagens → saídas.
 Bordas são por nó e o primeiro scan só memoriza; `OP` avalia sempre todos os filhos; NO = botão pressionado.
 O modelo do programa usa as mesmas chaves do JSON do firmware (`lines`, `logic`, `outputs`, `RES_TIMER`…),

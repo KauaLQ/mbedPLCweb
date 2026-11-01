@@ -150,7 +150,7 @@ select, input[type="number"] {
 .chip.on { color: var(--on); border-color: var(--on); background: transparent; }
 .mon { width: 100%; border-collapse: collapse; font-size: 12px; }
 .mon td { padding: 3px 0; }
-.mon .num { text-align: right; color: var(--muted); }
+.mon .num { text-align: right; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; min-width: 96px; }
 .flag { font: 600 10px var(--mono); margin-right: 4px; padding: 1px 4px; border: 1px solid var(--border); border-radius: 2px; color: var(--muted); }
 .flag.on { color: var(--on); border-color: var(--on); }
 
@@ -194,3 +194,20 @@ svg text { fill: var(--text); font-family: var(--mono); pointer-events: none; }
 .sub { font-size: 10px; fill: var(--muted); }
 .op { font-size: 14px; font-weight: 700; }
 .op.small { font-size: 11px; }
+
+/* ---------------- arrastar e soltar ---------------- */
+.rung-scroll svg { user-select: none; -webkit-user-select: none; }
+.node { touch-action: none; }
+.node.dragging { opacity: 0.35; }
+.handle { stroke: transparent; stroke-width: 16; cursor: grab; touch-action: none; }
+.handle:hover { stroke: var(--accent-soft); }
+.drop-mark { fill: var(--accent); pointer-events: none; }
+body.dragging, body.dragging * { cursor: grabbing !important; user-select: none; }
+.drag-ghost {
+  position: fixed; z-index: 1000; pointer-events: none;
+  display: flex; flex-direction: column; gap: 1px;
+  padding: 6px 10px; font-size: 12px;
+  background: var(--panel); color: var(--text);
+  border: 1px solid var(--accent); border-radius: 3px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+}
+.drag-ghost span { color: var(--muted); }

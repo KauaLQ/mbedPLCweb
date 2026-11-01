@@ -60,7 +60,7 @@ export class PlcEngine {
   }
 
   scan(now: number) {
-    this.now = now;
+    this.now = Math.floor(now);   // ms inteiros (performance.now() é fracionário)
     this.inputImage = [...this.inputs];       // 1. snapshot
     this.analogImage = [...this.analog];
     const results = new Map<string, boolean>();
@@ -75,7 +75,8 @@ export class PlcEngine {
       analog: [...this.analog],
       outputs: [...this.outputs],
       memory: [...this.memory],
-      timers: this.timers.map((t) => ({ ...t })),
+      // ACC só para exibição: limitado ao preset (como num CLP real); o motor usa o valor bruto
+      timers: this.timers.map((t) => ({ ...t, accum: Math.min(t.accum, t.preset) })),
       counters: this.counters.map((c) => ({ ...c })),
       results: new Map(this.results),
       scans: this.scans,

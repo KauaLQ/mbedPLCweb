@@ -1,6 +1,8 @@
+import type { PointerEvent as ReactPointerEvent } from "react";
 import type { Snapshot } from "../engine/plc";
 import type { Rung } from "../engine/types";
 import { ELEM_H, OUT_W, RAIL_X, WIRE_Y, measure } from "../editor/layout";
+import type { DropHint } from "../editor/tree";
 import { drawNode, drawOutput } from "./LadderNode";
 
 interface Props {
@@ -10,6 +12,9 @@ interface Props {
   snap: Snapshot;
   selectedId: string | null;
   maxLogicW: number;          // largura da maior lógica: alinha as saídas de todas as linhas
+  dragIds: Set<string>;
+  hint: DropHint | null;      // alvo de soltura nesta linha (se houver)
+  onDragStart: (id: string, e: ReactPointerEvent) => void;
   onSelectNode: (id: string) => void;
   onSelectOutput: (id: string) => void;
   onMove: (dir: -1 | 1) => void;
@@ -30,9 +35,13 @@ export function RungView(p: Props) {
   const W = railR + RAIL_X;
 
   const { el, out } = drawNode(rung.logic, RAIL_X, 0, live, {
+    rungId: rung.id,
     results: snap.results,
     selectedId: p.selectedId,
+    dragIds: p.dragIds,
+    hint: p.hint,
     onSelect: p.onSelectNode,
+    onDragStart: p.onDragStart,
   });
 
   const lastY = WIRE_Y + (Math.max(rung.outputs.length, 1) - 1) * ELEM_H;

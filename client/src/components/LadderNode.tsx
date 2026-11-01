@@ -1,16 +1,32 @@
-import type { ReactNode } from "react";
+import type { PointerEvent as ReactPointerEvent, ReactNode } from "react";
 import type { Snapshot } from "../engine/plc";
+import { fmtSec } from "../engine/format";
 import type { LogicNode, Output } from "../engine/types";
+import type { DropZone } from "../editor/tree";
 import { ELEM_H, ELEM_W, OUT_W, PAD, WIRE_Y, measure } from "../editor/layout";
 
 export interface DrawCtx {
-  results: Map<string, boolean>;   // resultado de cada nó no último scan
+  rungId: string;
+  results: Map<string, boolean>;                       // resultado de cada nó no último scan
   selectedId: string | null;
+  dragIds: Set<string>;                                // nós que estão sendo arrastados
+  hint: { nodeId: string; zone: DropZone } | null;     // alvo atual da soltura
   onSelect: (id: string) => void;
+  onDragStart: (id: string, e: ReactPointerEvent) => void;
 }
 
 const wire = (on: boolean) => (on ? "wire on" : "wire");
 type Leaf = Exclude<LogicNode, { type: "OP" }>;
+
+// Marca onde o elemento arrastado vai entrar
+function dropMark(zone: DropZone) {
+  switch (zone) {
+    case "before": return <rect className="drop-mark" x={0} y={6} width={5} height={ELEM_H - 12} rx={2} />;
+    case "after":  return <rect className="drop-mark" x={ELEM_W - 5} y={6} width={5} height={ELEM_H - 12} rx={2} />;
+    case "above":  return <rect className="drop-mark" x={14} y={3} width={ELEM_W - 28} height={5} rx={2} />;
+    case "below":  return <rect className="drop-mark" x={14} y={ELEM_H - 8} width={ELEM_W - 28} height={5} rx={2} />;
+  }
+}
 
 // ---------------- elementos de lógica (contatos) ----------------
 function drawLeaf(n: Leaf, x: number, y: number, powerIn: boolean, ctx: DrawCtx) {
@@ -58,16 +74,29 @@ function drawLeaf(n: Leaf, x: number, y: number, powerIn: boolean, ctx: DrawCtx)
     );
   }
 
+  const hint = ctx.hint && ctx.hint.nodeId === n.id ? ctx.hint.zone : null;
+
   return {
     out,
     el: (
-      <g key={n.id} transform={`translate(${x},${y})`} className="node" onClick={() => ctx.onSelect(n.id)}>
-        <rect className={ctx.selectedId === n.id ? "hit selected" : "hit"} x={3} y={3} width={ELEM_W - 6} height={ELEM_H - 6} rx={3} />
+      <g
+        key={n.id}
+        transform={`translate(${x},${y})`}
+        className={ctx.dragIds.has(n.id) ? "node dragging" : "node"}
+        onClick={() => ctx.onSelect(n.id)}
+        onPointerDown={(e) => ctx.onDragStart(n.id, e)}
+      >
+        <rect
+          className={ctx.selectedId === n.id ? "hit selected" : "hit"}
+          data-drop="1" data-rung={ctx.rungId} data-node={n.id}
+          x={3} y={3} width={ELEM_W - 6} height={ELEM_H - 6} rx={3}
+        />
         <line className={wire(powerIn)} x1={0} y1={WIRE_Y} x2={cx - half} y2={WIRE_Y} />
         <line className={wire(out)} x1={cx + half} y1={WIRE_Y} x2={ELEM_W} y2={WIRE_Y} />
         {shape}
         <text className="tag" x={cx} y={20} textAnchor="middle">{top}</text>
         {bottom && <text className={bottomClass} x={cx} y={WIRE_Y + 30} textAnchor="middle">{bottom}</text>}
+        {hint && dropMark(hint)}
       </g>
     ),
   };
@@ -92,6 +121,7 @@ export function drawNode(n: LogicNode, x: number, y: number, powerIn: boolean, c
 
   const m = measure(n);
   const els: ReactNode[] = [];
+  const handles: ReactNode[] = [];
   let oy = y;
   let anyOut = false;
   let firstY = 0;
@@ -105,12 +135,26 @@ export function drawNode(n: LogicNode, x: number, y: number, powerIn: boolean, c
     els.push(r.el);
     els.push(<line key={`${c.id}-i`} className={wire(powerIn)} x1={x} y1={wy} x2={x + PAD} y2={wy} />);
     els.push(<line key={`${c.id}-o`} className={wire(r.out)} x1={x + PAD + cm.w} y1={wy} x2={x + m.w} y2={wy} />);
+    // alça do ramo: arrastar a conexão move o ramo inteiro (elemento ou sequência)
+    handles.push(
+      <line key={`${c.id}-h`} className="handle" x1={x} y1={wy} x2={x + PAD} y2={wy} onPointerDown={(e) => ctx.onDragStart(c.id, e)}>
+        <title>Arraste para mover este ramo</title>
+      </line>,
+    );
     anyOut = anyOut || r.out;
     oy += cm.h;
   });
   els.push(<line key="vl" className={wire(powerIn)} x1={x} y1={firstY} x2={x} y2={lastY} />);
   els.push(<line key="vr" className={wire(anyOut)} x1={x + m.w} y1={firstY} x2={x + m.w} y2={lastY} />);
-  return { el: <g key={n.id}>{els}</g>, out: anyOut };
+  // alças das barras verticais: arrastar move o bloco paralelo inteiro
+  for (const bx of [x, x + m.w]) {
+    handles.push(
+      <line key={`bar-${bx}`} className="handle" x1={bx} y1={firstY} x2={bx} y2={lastY} onPointerDown={(e) => ctx.onDragStart(n.id, e)}>
+        <title>Arraste para mover o bloco paralelo</title>
+      </line>,
+    );
+  }
+  return { el: <g key={n.id}>{els}{handles}</g>, out: anyOut };
 }
 
 // ---------------- instruções de saída ----------------
@@ -142,7 +186,7 @@ export function drawOutput(
     let on = powerIn;
     if (o.type === "TON" || o.type === "TOF") {
       const t = snap.timers[idx];
-      line2 = `${(t.accum / 1000).toFixed(1)} / ${((o.preset ?? 0) / 1000).toFixed(1)} s`;
+      line2 = `${fmtSec(t.accum)} / ${fmtSec(o.preset ?? 0)} s`;
       on = t.DN;
     } else if (o.type === "CTU") {
       const c = snap.counters[idx];
